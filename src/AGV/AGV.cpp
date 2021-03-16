@@ -15,13 +15,13 @@ AGV::AGV(const string &node_name, const string &env_name, const string &agent_na
       map_unit(0.5),
       map_x_shift(0.2),
       map_y_shift(0),
-      Kp(4),     // 4.2 2.5
-      Ki(0.5),   // 0  0.25
-      Kd(1),   // 2   0.5
+      Kp(4),
+      Ki(0.5),
+      Kd(1),
       Koz(0.5),
-      Kp_oz(1), // 1
-      Ki_oz(0), // 0
-      Kd_oz(15), // 3
+      Kp_oz(1),
+      Ki_oz(0),
+      Kd_oz(20),
       dt(0.001),
       threshold(0.01)
 {
@@ -211,6 +211,16 @@ void AGV::Put(const int &velocity)
     PubDone();
 }
 
+void AGV::Pick()
+{
+    is_product_ok = -1;
+    RotateConveyor(-oz);
+    // while(is_product_ok != 4)
+    //     this_thread::sleep_for(std::chrono::milliseconds(500));
+    this_thread::sleep_for(std::chrono::milliseconds(5000));
+    RotateConveyor(0);
+    PubDone();
+}
 
 
 /* 
@@ -279,6 +289,7 @@ void AGV::InitialRos()
     sub_pos = n.subscribe('/' + node_name + "/slam/odom", 1000, &AGV::PosCallBack, this);
     sub_now_state = n.subscribe('/' + env_name + "/now_state", 1000, &AGV::NowStateCallBack, this);
     sub_next_state = n.subscribe('/' + env_name + "/next_state", 1000, &AGV::NextStateCallBack, this);
+    sub_product = n.subscribe("/six_arm/product", 1000, &AGV::ProductCallBack, this);
     thread_sub = thread(&AGV::Sub, this);
 }
 
@@ -311,6 +322,11 @@ void AGV::NowStateCallBack(const std_msgs::Float32MultiArray &msg)
 void AGV::NextStateCallBack(const std_msgs::Float32MultiArray &msg)
 {
     next_state.push_back(msg.data);
+}
+
+void AGV::ProductCallBack(const std_msgs::Int8 &msg)
+{
+    is_product_ok = msg.data;
 }
 
 void AGV::CheckData()
