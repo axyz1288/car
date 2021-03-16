@@ -16,8 +16,10 @@ Mini-AGV is a **low cost** and **small volume** AGV with **AI algorithm**. With 
 4. Deploy configmaps, storage/master and master.yaml.
 ## AGV
 1. Set Jetson nano username to agv for mount path and desktop name to agv1, agv2, ... agvN for ros.
-2. Install Microk8s and set kubelet node_ip to prevent internal ip from setting to lidar ip.
-3. Deployment storage/agv and agv.yaml.
+2. Disable nano power_save (sudo iw dev wlan0 set power_save off).
+3. Disable swap permanently.
+3. Install Microk8s and disable ha-cluster
+4. Deployment storage/agv and agv.yaml.
 # Notice
 1. tf 
 2. map.stcm path (Dockerfile & AGV.cpp)
